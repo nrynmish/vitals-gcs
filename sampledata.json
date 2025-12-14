@@ -29,7 +29,7 @@
       "message_id": "ATTITUDE",
       "timestamp": 1164,
       "data": {
-        "time_boot_ms": 307198,
+        "time_boot_ms": 307198,  
         "roll": -0.03394744545221329,
         "pitch": 0.044667646288871765,
         "yaw": 0.14895235002040863,

@@ -24,7 +24,5 @@ class MAVClient:
         )
 
     def read(self):
-        return self.master.recv_match(
-            type=['HEARTBEAT', 'GPS_RAW_INT', 'VFR_HUD', 'ATTITUDE'],
-            blocking=False
-        )
+        return self.master.recv_match(blocking=False)
+

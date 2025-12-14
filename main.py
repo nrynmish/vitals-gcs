@@ -28,20 +28,30 @@ def main():
     vfr = {"alt": None, "speed": None}
 
     def poll_mav():
-        msg = mav.read()
-        if not msg:
-            return
+        while True:
+            msg = mav.read()
+            if not msg:
+                break
 
-        mtype = msg.get_type()
+            mtype = msg.get_type()
 
-        if mtype == "GPS_RAW_INT":
-            gps["lat"] = msg.lat / 1e7
-            gps["lon"] = msg.lon / 1e7
-            gps["sats"] = msg.satellites_visible
+            if mtype == "GPS_RAW_INT":
+                gps["lat"] = msg.lat / 1e7
+                gps["lon"] = msg.lon / 1e7
+                gps["sats"] = msg.satellites_visible
 
-        elif mtype == "VFR_HUD":
-            vfr["alt"] = msg.alt
-            vfr["speed"] = msg.groundspeed
+            elif mtype == "VFR_HUD":
+                vfr["alt"] = msg.alt
+                vfr["speed"] = msg.groundspeed
+
+            elif mtype == "STATUSTEXT":
+                text = msg.text
+                if isinstance(text, bytes):
+                    text = text.decode(errors='ignore').rstrip('\x00')
+                else:
+                    text = str(text).rstrip('\x00')
+
+                ui.add_log(text)
 
         text = ""
         if gps["lat"] is not None:

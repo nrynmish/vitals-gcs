@@ -2,7 +2,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtCore import Qt
 from .joystick import JoystickWidget
 from .map_widget import MapWidget
-from .camera_widget import CameraWidget   # ← ADD THIS
+from .camera_widget import CameraWidget
+from .log_widget import LogWidget
 
 class Dashboard(QWidget):
     def __init__(self):
@@ -14,30 +15,22 @@ class Dashboard(QWidget):
         main.setContentsMargins(10,10,10,10)
         main.setSpacing(12)
 
-        # ========== LEFT COLUMN (Camera + Free Space) ==========
         left_col = QVBoxLayout()
         left_col.setSpacing(12)
 
-        # Camera (scales, keeps 2:1)
         self.video = CameraWidget()
         self.video.setSizePolicy(
             QSizePolicy.Expanding,
             QSizePolicy.Expanding
         )
 
-        # Free bottom section
-        self.bottom_free = QWidget()
-        self.bottom_free.setStyleSheet("""
-            background:#1a1a1a;
-            border-radius:16px;
-        """)
-
-        left_col.addWidget(self.video, stretch=0)
-        left_col.addWidget(self.bottom_free, stretch=1)
+        self.log_widget = LogWidget()
+        
+        left_col.addWidget(self.video, stretch=2)
+        left_col.addWidget(self.log_widget, stretch=1)
 
         main.addLayout(left_col, stretch=7)
 
-        # ========== RIGHT COLUMN ==========
         right = QVBoxLayout()
         right.setSpacing(12)
 
@@ -77,3 +70,6 @@ class Dashboard(QWidget):
 
     def update_telem(self, text):
         self.telemetry.setText(text)
+        
+    def add_log(self, text):
+        self.log_widget.add_log(text)
