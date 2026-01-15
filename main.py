@@ -39,8 +39,8 @@ def main():
     controller.updated.connect(
         lambda lx, ly, rx, ry: (
             joy.update({"lx": lx, "ly": ly, "rx": rx, "ry": ry}),
-            ui.left_joy.update_stick(lx, ly),
-            ui.right_joy.update_stick(rx, ry)
+            ui.left_joy.update_stick(rx, -ry),
+            ui.right_joy.update_stick(lx, -ly)
         )
     )
 
@@ -74,9 +74,7 @@ def main():
         lx = norm(lx)
         ly = norm(ly)
         rx = norm(rx)
-        print("before",ry)
         ry = norm(ry)
-        print("after", ry)
 
         roll = int(lx * 1000)
         pitch = int(ly * 1000)
