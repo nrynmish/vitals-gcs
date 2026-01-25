@@ -55,8 +55,8 @@ class ControlPanel(QWidget):
 
     def toggle_servo2(self):
         self.servo2 = not self.servo2
-        pwm = 1900 if self.servo2 else 1100
-        self.mav.set_servo(9, pwm)
+        pwm = 1900 if self.servo2 else 801
+        self.mav.set_servo(8, pwm)
 
     def cycle_mode(self):
         self.mode_idx = (self.mode_idx + 1) % 3
