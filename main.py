@@ -10,6 +10,7 @@ from scripts.mavlink.mav_client import MAVClient
 from scripts.logger.flight_logger import FlightLogger
 
 def main():
+    sea_level = 0
     app = QApplication(sys.argv)
 
     def handle_sigint(*args):
@@ -155,7 +156,9 @@ def main():
                 f"  Satellites: {gps['sats']}\n\n"
             )
         if vfr["alt"] is not None:
-            telem += f"Altitude: {vfr['alt']:.2f} m\n"
+            vfr["alt"] = vfr["alt"] - sea_level
+            vfr["alt"] = vfr["alt"] * 3.281
+            telem += f"Altitude: {vfr['alt']:.2f} ft\n"
             telem += f"Speed: {vfr['speed']:.2f} m/s\n"
         if telem:
             ui.update_telem(telem)
