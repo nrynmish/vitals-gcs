@@ -10,6 +10,7 @@ from scripts.mavlink.mav_client import MAVClient
 from scripts.logger.flight_logger import FlightLogger
 
 def main():
+
     app = QApplication(sys.argv)
 
     def handle_sigint(*args):
@@ -21,12 +22,12 @@ def main():
     sig_timer.start(100)
     sig_timer.timeout.connect(lambda: None)
 
-    ui = Dashboard()
-    ui.resize(1600, 900)
-    ui.show()
-
     mav = MAVClient()
     mav.request_stream()
+
+    ui = Dashboard(mav)
+    ui.resize(1600, 900)
+    ui.show()
 
     logger = FlightLogger()
 
@@ -45,7 +46,7 @@ def main():
     )
 
     gps = {"lat": None, "lon": None, "sats": None}
-    vfr = {"alt": None, "speed": None}
+    vfr = {"alt": None, "speed": None, "rel_alt": None}
     ekf = {
         "roll": None,
         "pitch": None,
@@ -119,6 +120,9 @@ def main():
                 ekf["x"] = msg.x
                 ekf["y"] = msg.y
                 ekf["z"] = msg.z
+            
+            elif mtype == "GLOBAL_POSITION_INT":
+                vfr["rel_alt"] = msg.relative_alt / 1000.0
 
             elif mtype == "EKF_STATUS_REPORT":
                 ekf["flags"] = msg.flags
@@ -139,7 +143,7 @@ def main():
                 text = msg.text.decode(errors="ignore").rstrip("\x00") if isinstance(msg.text, bytes) else str(msg.text).rstrip("\x00")
                 ui.add_log(text)
                 logger.add_error(text)
-
+                
         if rc8_raw is not None:
             gcs_control_enabled = rc8_raw > 1500
 
@@ -154,9 +158,15 @@ def main():
                 f"  Lon: {gps['lon']:.6f}\n"
                 f"  Satellites: {gps['sats']}\n\n"
             )
-        if vfr["alt"] is not None:
-            telem += f"Altitude: {vfr['alt']:.2f} m\n"
-            telem += f"Speed: {vfr['speed']:.2f} m/s\n"
+        
+        if vfr["rel_alt"] is not None:
+            vfr["rel_alt_ft"] = vfr["rel_alt"] * 3.28084
+            telem += f"Elevation: {vfr['rel_alt_ft']:.2f} ft\n"
+
+        # if vfr["alt"] is not None:
+        #     telem += f"Altitude: {vfr['alt']:.2f} m\n"
+        #     telem += f"Speed: {vfr['speed']:.2f} m/s\n"
+        
         if telem:
             ui.update_telem(telem)
 
@@ -180,7 +190,7 @@ def main():
             "flight": {
                 "mode": flight["mode"],
                 "armed": flight["armed"],
-            },
+            },  
             "ekf": {
                 "attitude": {
                     "roll": ekf["roll"],

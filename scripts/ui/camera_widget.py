@@ -33,7 +33,7 @@ class CameraWidget(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_frame)
-        self.timer.start(33)  # ~30 FPS
+        self.timer.start(16.66)
 
     def update_frame(self):
         ret, frame = self.cap.read()
@@ -43,6 +43,7 @@ class CameraWidget(QWidget):
             return
 
         # Convert BGR → RGB
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         h, w, ch = frame.shape
